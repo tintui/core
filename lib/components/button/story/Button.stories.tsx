@@ -1,5 +1,5 @@
-import { Button } from './Button';
-import type { Decorator, StoryDefinition } from '../../../src/storyRegistry';
+import { Button } from '../Button';
+import type { Decorator, MetaStoryDefinition, StoryDefinition } from '../../../../src/storyRegistry';
 import type { ReactNode } from 'react';
 
 const withGrayBackground: Decorator = (story: ReactNode) => (
@@ -10,12 +10,14 @@ const Default = () => <Button>Default</Button>;
 
 export default {
   title: 'Button',
+  category: 'controls', // new : buttons live under a "controls" category
   decorators: [withGrayBackground],
   Component: Default,
-} satisfies StoryDefinition;
+} satisfies MetaStoryDefinition;
 
 export const Secondary = {
   title: 'Secondary Button',
+  // inherits `category` from the default export above ("controls")
   decorators: [],
   Component: () => <Button style={{ background: 'hotpink' }}>Secondary</Button>,
 } satisfies StoryDefinition;

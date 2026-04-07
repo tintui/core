@@ -1,58 +1,18 @@
-import { useState, type ReactNode } from 'react';
-import { getStoryGroups, type Decorator, type Story } from './storyRegistry';
-
-function applyDecorators(
-  story: ReactNode,
-  decorators: Decorator[]
-) {
-  return decorators.reduceRight(
-    (acc, decorator) => decorator(acc),
-    story
-  );
-}
-
-const globalDecorator: Decorator = story => {
+export function LandingPage() {
   return (
-    <div style={{ padding: 24 }}>
-      {story}
-    </div>
-  );
-};
-
-export function StoryPreview() {
-  const groups = getStoryGroups();
-  const [selected, setSelected] = useState<Story | null>(null);
-
-  return (
-    <div style={{ display: 'flex', height: '100vh' }}>
-      {/* Sidebar */}
-      <aside style={{ width: 250, borderRight: '1px solid #ddd' }}>
-        {groups.map(group => (
-          <div key={group.title}>
-            <h4>{group.title}</h4>
-
-            {group.stories.map(story => (
-              <button
-                key={story.id}
-                onClick={() => setSelected(story)}
-                style={{ display: 'block', width: '100%' }}
-              >
-                {story.name}
-              </button>
-            ))}
-          </div>
-        ))}
-      </aside>
-
-      {/* Canvas */}
-        <main style={{ flex: 1 }}>
-        {selected
-          ? applyDecorators(
-              <selected.Component />,
-              [globalDecorator, ...selected.decorators]
-            )
-          : 'Select a story'}
+    <div style={{ height: '100%', display: 'flex' }}>
+      <main style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+        <h1>Welcome to TintUI</h1>
+        <p style={{ color: '#555', marginTop: 8 }}>
+          Pick a component collection from the sidebar to get started.
+        </p>
+        <p style={{ color: '#999', marginTop: 16 }}>
+          You can also browse the component docs and stories by selecting a category.
+        </p>
       </main>
     </div>
   );
 }
+
+export const StoryPreview = LandingPage; // preserve existing exports until future cleanup
+

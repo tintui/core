@@ -2,15 +2,17 @@ import type { ComponentType, ReactNode } from 'react';
 
 export type Decorator = (story: ReactNode) => ReactNode;
 
-/* ---- type to export in .stories files ---- */
+/* ---- named exports from story files ---- */
 export type StoryDefinition = {
     title?: string;
     Component: ComponentType;
     decorators?: Decorator[];
 };
+export type MetaStoryDefinition = StoryDefinition & {
+    category: string;
+};
 
 /* ---- types for building and rendering story objects ---- */
-
 export type Story = {
     id: string;
     name: string;
@@ -18,40 +20,56 @@ export type Story = {
     decorators: Decorator[];
 };
 
-export type StoryGroup = {
+export type StoryCollection = {
+    /**
+     * The title of this story collection (from the default export's title or file name).
+     */
     title: string;
     stories: Story[];
 };
 
-/* ---- Story discovery ---- */
+/**
+ * Collections grouped by category.  Keys are the raw category string (not
+ * slugged); the sidebar and router will slug when generating URLs.
+ */
+export type CollectionsByCategory = Record<string, StoryCollection[]>;
+
 
 type StoryModule = {
-    default: StoryDefinition;
+    default: StoryDefinition & { category: string };
     [key: string]: StoryDefinition;
 };
 
 const modules = import.meta.glob('../lib/components/**/*.stories.tsx', {
-    eager: true, // enable HMR
+    eager: true,
 }) as Record<string, StoryModule>;
 
-export function getStoryGroups(): StoryGroup[] {
-    return Object.entries(modules).map(([path, mod]) => {
-        const groupTitle = mod.default.title ?? path;
+export function getStoryCollections(): CollectionsByCategory {
+    const result: CollectionsByCategory = {};
+
+    for (const [, mod] of Object.entries(modules)) {
+        if (!mod.default || !mod.default.category) continue;
+
+        const category = mod.default.category;
+        const title = mod.default.title ?? category;
         const fileDecorators = mod.default.decorators ?? [];
 
-        const stories: Story[] = Object.entries(mod)
-            .map(([name, def]) => ({
-                id: `${groupTitle}-${name}`,
+        const collection: StoryCollection = { title, stories: [] };
+
+        for (const [name, def] of Object.entries(mod)) {
+            collection.stories.push({
+                id: `${category}-${name}`,
                 name: def.title ?? name,
                 Component: def.Component,
                 decorators: [...fileDecorators, ...(def.decorators ?? [])],
-            }));
+            });
+        }
 
-        return {
-            title: groupTitle,
-            stories,
-        };
-    });
+        if (!result[category]) result[category] = [];
+        result[category].push(collection);
+    }
+
+    return result;
 }
 
 export function applyDecorators(
