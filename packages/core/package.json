@@ -1,0 +1,33 @@
+{
+  "name": "@tintui/core",
+  "version": "0.0.1",
+  "type": "module",
+  "private": false,
+  "main": "dist/main.cjs",
+  "module": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "import": "./dist/main.js",
+      "require": "./dist/main.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": ["dist"],
+  "sideEffects": ["**/*.css"],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b tsconfig.lib.json && vite build --mode lib"
+  },
+  "dependencies": {
+    "@tintui/primitives": "file:../primitives",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.11.0"
+  },
+  "peerDependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  }
+}
